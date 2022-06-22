@@ -1,0 +1,26 @@
+.loginContainer {
+  height: 400px;
+    width: 500px;
+    border-radius: 10px;
+    margin: 0 auto;
+    padding: 75px 30px;
+    border-radius: 8px;
+    border: 1px solid #dadce0;
+    transform: translatey(50%);
+}
+
+.loginButton {
+  margin-top: 3rem;
+}
+
+.loginParentContainer {
+  background-image: url('../../public/login-bg.jpg');
+  height: 100%;
+}
+
+@media screen and (max-width :330px) {
+
+  .loginContainer {
+    width: auto;
+  }
+}

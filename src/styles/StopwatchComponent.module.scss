@@ -1,0 +1,53 @@
+.stopwatchTimer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -moz-transform: translateX(-50%) translateY(-50%);
+  -webkit-transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.stopwatchTimes {
+  font-size: 250px;
+}
+
+@media screen and (max-width :1000px) {
+  .stopwatchTimes {
+    font-size: 80px;
+  }
+
+  .stopwatchButtons {
+    width: 20%;
+  }
+}
+
+@media screen and (max-width :400px) {
+  .stopwatchTimes {
+    font-size: 50px;
+    text-align: center;
+  }
+
+  .stopwatchButtons {
+    width: 100%;
+    margin-top: 2vh;
+  }
+}
+
+@media screen and (max-width :330px) {
+  .stopwatchTimes {
+    font-size: 35px;
+    text-align: center;
+  }
+
+  .stopwatchButtons {
+    width: 20%;
+    margin-top: 2vh;
+  }
+}
+
+.stopwatchComponentContainer {
+
+  height: 100%;
+  background-image: url('../../public/home-bg.jpg');
+}
+
