@@ -22,15 +22,28 @@ const StopWatchComponent = () => {
     if (running) {
       interval = setInterval(() => {
         setTime((prevTime: any) => prevTime + 10);
-        localStorage.setItem("time", JSON.stringify(time));
       }, 10);
     } else if (!running) {
       localStorage.setItem("time", JSON.stringify(time));
       clearInterval(interval);
     }
 
-    return () => clearInterval(interval);
+    return () => {
+      //console.log("cleanup");
+      clearInterval(interval);
+    };
   }, [running]);
+
+  useEffect(() => {
+    localStorage.setItem("time", JSON.stringify(time));
+    console.log(time, "time");
+
+    let data = (window.performance.getEntriesByType("navigation")[0] as any)
+      .type;
+    if (data === "reload") {
+      setRunning(true);
+    }
+  }, [time]);
 
   return (
     <div className={styles.stopwatchTimer}>
