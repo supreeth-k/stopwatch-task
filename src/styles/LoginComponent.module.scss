@@ -24,3 +24,21 @@
     width: auto;
   }
 }
+
+@media screen and (max-width :500px) {
+
+  .loginContainer {
+    width: 300px;
+  }
+}
+
+@media screen and (max-height :600px) and (max-width:1280px) {
+
+  .loginContainer {
+    height: 350px;
+  }
+
+  .loginButton {
+    margin-top: 1rem;
+  }
+}

@@ -9,6 +9,12 @@ const StopWatchComponent = () => {
       : 0
   );
   const [running, setRunning] = useState(false);
+const [resetStop, setResetStop] = useState<any>(localStorage.getItem("resetStop")
+? (localStorage.getItem("resetStop") as string)
+: false
+);
+
+console.log(resetStop);
 
   useEffect(() => {
     let isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -35,15 +41,24 @@ const StopWatchComponent = () => {
   }, [running]);
 
   useEffect(() => {
-    localStorage.setItem("time", JSON.stringify(time));
-    console.log(time, "time");
 
+    console.log(running, 'running');
+    console.log(resetStop, 'resetStop');
+  
+    debugger;
     let data = (window.performance.getEntriesByType("navigation")[0] as any)
       .type;
-    if (data === "reload") {
-      setRunning(true);
-    }
-  }, [time]);
+      if (data === "reload" && resetStop! == 'false') {
+        setRunning(true);
+      } else if(resetStop == 'true') {
+        setRunning(false);
+      }
+
+      if(running) {
+        localStorage.setItem("time", JSON.stringify(time));
+        console.log(time, "time");
+      }
+  }, [time, running]);
 
   return (
     <div className={styles.stopwatchTimer}>
@@ -64,14 +79,14 @@ const StopWatchComponent = () => {
         <Button
           variant="contained"
           className={`${styles.stopwatchButtons} col-lg-3 col-xs-12 mx-4`}
-          onClick={() => setRunning(true)}
+          onClick={() => {setRunning(true); setResetStop(false); localStorage.setItem('resetStop',JSON.stringify(false))}}
         >
           Start
         </Button>
         <Button
           variant="contained"
           className={`${styles.stopwatchButtons} col-lg-3 col-xs-12 mx-4`}
-          onClick={() => setRunning(false)}
+          onClick={() => {setRunning(false); setResetStop(true); localStorage.setItem('resetStop',JSON.stringify(true))}}
         >
           Stop
         </Button>
@@ -79,8 +94,11 @@ const StopWatchComponent = () => {
           variant="contained"
           className={`${styles.stopwatchButtons} col-lg-3 col-xs-12 mx-4`}
           onClick={() => {
+          setResetStop(true);
             setTime(0);
+            setRunning(false);
             localStorage.setItem("time", JSON.stringify(0));
+            localStorage.setItem('resetStop',JSON.stringify(true))
           }}
         >
           Reset
