@@ -1,9 +1,21 @@
-import { useState, useEffect } from "react";
 import { Button } from "@mui/material";
 import styles from "../styles/StopwatchComponent.module.scss";
 import React from "react";
 
-export default class StopWatchComponent extends React.Component {
+interface StateInterface {
+  time: number;
+  running: boolean;
+  resetStop: boolean | string;
+}
+
+interface PropsInterface {}
+
+export default class StopWatchComponent extends React.Component<
+  PropsInterface,
+  StateInterface
+> {
+  interval: any;
+
   constructor(props: any) {
     super(props);
     this.state = {
@@ -17,7 +29,46 @@ export default class StopWatchComponent extends React.Component {
     };
   }
 
-  render() {
+  componentDidUpdate(prevProps: any, prevState: any) {
+    let isLoggedIn = localStorage.getItem("isLoggedIn");
+
+    if (!isLoggedIn) {
+      window.location.href = "/";
+    }
+
+    if (!prevState.running && this.state.running) {
+      this.interval = setInterval(() => {
+        console.log(this.state.running, "running-state");
+        this.setState({ time: this.state.time + 10 });
+      }, 10);
+      // console.log(this.interval, "running-interval");
+    } else if (!this.state.running) {
+      //console.log(this.interval, "stopped-interval");
+      localStorage.setItem("time", JSON.stringify(this.state.time));
+      clearInterval(this.interval);
+      //console.log(this.state.time, "time");
+    }
+
+    let data = (window.performance.getEntriesByType("navigation")[0] as any)
+      .type;
+    if (data === "reload" && this.state.resetStop! == "false") {
+      this.setState({ resetStop: true });
+    } else if (this.state.resetStop == "true") {
+      this.setState({ running: false });
+    }
+
+    if (this.state.running) {
+      localStorage.setItem("time", JSON.stringify(this.state.running));
+    }
+
+    console.log(prevState, "prevState");
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
+
+  /*
     useEffect(() => {
       let isLoggedIn = localStorage.getItem("isLoggedIn");
 
@@ -59,19 +110,23 @@ export default class StopWatchComponent extends React.Component {
         console.log(time, "time");
       }
     }, [time, running]);
+  
+  
+  */
 
+  render() {
     return (
       <div className={styles.stopwatchTimer}>
         <div className={`row mb-3 mx-2`}>
           <div className="col-12">
             <span className={`${styles.stopwatchTimes}`}>
-              {("0" + Math.floor((time / 60000) % 60)).slice(-2)}:
+              {("0" + Math.floor((this.state.time / 60000) % 60)).slice(-2)}:
             </span>
             <span className={styles.stopwatchTimes}>
-              {("0" + Math.floor((time / 1000) % 60)).slice(-2)}:
+              {("0" + Math.floor((this.state.time / 1000) % 60)).slice(-2)}:
             </span>
             <span className={styles.stopwatchTimes}>
-              {("0" + ((time / 10) % 100)).slice(-2)}
+              {("0" + ((this.state.time / 10) % 100)).slice(-2)}
             </span>
           </div>
         </div>
@@ -80,8 +135,8 @@ export default class StopWatchComponent extends React.Component {
             variant="contained"
             className={`${styles.stopwatchButtons} col-lg-3 col-xs-12 mx-4`}
             onClick={() => {
-              setRunning(true);
-              setResetStop(false);
+              this.setState({ running: true });
+              this.setState({ resetStop: false });
               localStorage.setItem("resetStop", JSON.stringify(false));
             }}
           >
@@ -91,8 +146,8 @@ export default class StopWatchComponent extends React.Component {
             variant="contained"
             className={`${styles.stopwatchButtons} col-lg-3 col-xs-12 mx-4`}
             onClick={() => {
-              setRunning(false);
-              setResetStop(true);
+              this.setState({ running: false });
+              this.setState({ resetStop: true });
               localStorage.setItem("resetStop", JSON.stringify(true));
             }}
           >
@@ -102,9 +157,9 @@ export default class StopWatchComponent extends React.Component {
             variant="contained"
             className={`${styles.stopwatchButtons} col-lg-3 col-xs-12 mx-4`}
             onClick={() => {
-              setResetStop(true);
-              setTime(0);
-              setRunning(false);
+              this.setState({ resetStop: true });
+              this.setState({ time: 0 });
+              this.setState({ running: false });
               localStorage.setItem("time", JSON.stringify(0));
               localStorage.setItem("resetStop", JSON.stringify(true));
             }}
