@@ -1,52 +1,66 @@
 import { Button } from "@mui/material";
 import styles from "../styles/StopwatchComponent.module.scss";
 import React from "react";
+import { count } from "console";
 
 interface StateInterface {
   time: number;
-  running: boolean;
+  running: boolean | string;
   resetStop: boolean | string;
 }
 
+let interval: any;
 interface PropsInterface {}
 
 export default class StopWatchComponent extends React.Component<
   PropsInterface,
   StateInterface
 > {
-  interval: any;
-
   constructor(props: any) {
     super(props);
     this.state = {
       time: localStorage.getItem("time")
         ? parseInt(localStorage.getItem("time") as string)
         : 0,
-      running: false,
-      resetStop: localStorage.getItem("resetStop")
-        ? (localStorage.getItem("resetStop") as string)
-        : false,
+      running: localStorage.getItem("running") === "true",
+      resetStop: localStorage.getItem("resetStop") === "true",
     };
+
+    console.log("inside constructor");
+    clearInterval(interval);
   }
 
-  componentDidUpdate(prevProps: any, prevState: any) {
+  componentDidMount() {
+    this.setState({
+      time: localStorage.getItem("time")
+        ? parseInt(localStorage.getItem("time") as string)
+        : 0,
+      running: localStorage.getItem("running") === "true",
+      resetStop: localStorage.getItem("resetStop") === "true",
+    });
+
+    clearInterval(interval);
+  }
+
+  componentDidUpdate() {
     let isLoggedIn = localStorage.getItem("isLoggedIn");
 
     if (!isLoggedIn) {
       window.location.href = "/";
     }
 
-    if (!prevState.running && this.state.running) {
-      this.interval = setInterval(() => {
-        console.log(this.state.running, "running-state");
+    if (this.state.running && !this.state.resetStop && interval) {
+      clearInterval(interval);
+      interval = null;
+    }
+    if (this.state.running && !interval) {
+      interval = setInterval(() => {
         this.setState({ time: this.state.time + 10 });
+        localStorage.setItem("time", JSON.stringify(this.state.time));
       }, 10);
-      // console.log(this.interval, "running-interval");
-    } else if (!this.state.running) {
-      //console.log(this.interval, "stopped-interval");
+    } else if (!this.state.running && interval) {
       localStorage.setItem("time", JSON.stringify(this.state.time));
-      clearInterval(this.interval);
-      //console.log(this.state.time, "time");
+      clearInterval(interval);
     }
 
     let data = (window.performance.getEntriesByType("navigation")[0] as any)
@@ -58,61 +72,13 @@ export default class StopWatchComponent extends React.Component<
     }
 
     if (this.state.running) {
-      localStorage.setItem("time", JSON.stringify(this.state.running));
+      localStorage.setItem("running", JSON.stringify(this.state.running));
     }
-
-    console.log(prevState, "prevState");
   }
 
   componentWillUnmount() {
-    clearInterval(this.interval);
+    clearInterval(interval);
   }
-
-  /*
-    useEffect(() => {
-      let isLoggedIn = localStorage.getItem("isLoggedIn");
-
-      if (!isLoggedIn) {
-        window.location.href = "/";
-      }
-
-      let interval: any;
-
-      if (running) {
-        interval = setInterval(() => {
-          setTime((prevTime: any) => prevTime + 10);
-        }, 10);
-      } else if (!running) {
-        localStorage.setItem("time", JSON.stringify(time));
-        clearInterval(interval);
-      }
-
-      return () => {
-        //console.log("cleanup");
-        clearInterval(interval);
-      };
-    }, [running]);
-
-    useEffect(() => {
-      console.log(running, "running");
-      console.log(resetStop, "resetStop");
-
-      let data = (window.performance.getEntriesByType("navigation")[0] as any)
-        .type;
-      if (data === "reload" && resetStop! == "false") {
-        setRunning(true);
-      } else if (resetStop == "true") {
-        setRunning(false);
-      }
-
-      if (running) {
-        localStorage.setItem("time", JSON.stringify(time));
-        console.log(time, "time");
-      }
-    }, [time, running]);
-  
-  
-  */
 
   render() {
     return (
@@ -135,8 +101,7 @@ export default class StopWatchComponent extends React.Component<
             variant="contained"
             className={`${styles.stopwatchButtons} col-lg-3 col-xs-12 mx-4`}
             onClick={() => {
-              this.setState({ running: true });
-              this.setState({ resetStop: false });
+              this.setState({ running: true, resetStop: false });
               localStorage.setItem("resetStop", JSON.stringify(false));
             }}
           >
@@ -146,9 +111,10 @@ export default class StopWatchComponent extends React.Component<
             variant="contained"
             className={`${styles.stopwatchButtons} col-lg-3 col-xs-12 mx-4`}
             onClick={() => {
-              this.setState({ running: false });
-              this.setState({ resetStop: true });
+              clearInterval(interval);
+              this.setState({ running: false, resetStop: true });
               localStorage.setItem("resetStop", JSON.stringify(true));
+              localStorage.setItem("running", JSON.stringify(false));
             }}
           >
             Stop
@@ -157,11 +123,11 @@ export default class StopWatchComponent extends React.Component<
             variant="contained"
             className={`${styles.stopwatchButtons} col-lg-3 col-xs-12 mx-4`}
             onClick={() => {
-              this.setState({ resetStop: true });
-              this.setState({ time: 0 });
-              this.setState({ running: false });
+              clearInterval(interval);
+              this.setState({ resetStop: true, time: 0, running: false });
               localStorage.setItem("time", JSON.stringify(0));
               localStorage.setItem("resetStop", JSON.stringify(true));
+              localStorage.setItem("running", JSON.stringify(false));
             }}
           >
             Reset
